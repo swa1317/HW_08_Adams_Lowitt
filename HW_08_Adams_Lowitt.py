@@ -13,7 +13,8 @@ def csv_to_array(csv_filename):
     return data
 
 def get_crss_corr_coef(Array_A, Array_B):
-    CC_AB = np.corrcoef(Array_A.ravel(), Array_B.ravel())
+    CrossCoef_AB = np.corrcoef(Array_A.ravel(), Array_B.ravel())
+    return CrossCoef_AB
 
 if __name__ == '__main__':
     parameter = sys.argv[1:]
@@ -21,4 +22,7 @@ if __name__ == '__main__':
         print("the parameter is empty")
     else:
         data = csv_to_array(parameter[0])
-        #get_crss_corr_coef()
+        array1 = data[:,1] # Beans
+        array2 = data[:,2] # Bread
+        CrossCoef = get_crss_corr_coef(array1, array2)
+        print(CrossCoef)
