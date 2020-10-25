@@ -22,7 +22,7 @@ def get_crss_corr_coef(data):
             array1 = data[:,first_index] # get the array of the first attribute/class column
             array2 = data[:,second_index] # get the array of the second attribute/class column
             CrossCoef_AB = np.corrcoef(array1.ravel(), array2.ravel()) # compute cross correlation coefficient using numpy.corrcoef()
-            print("Cross correlation between indexes: " + str(first_index) + " and " + str(second_index) + " = " + str(CrossCoef_AB) )
+            print("Cross correlation between indexes: " + str(first_index) + " and " + str(second_index) + " = " + str(CrossCoef_AB[0,1]) )
 
 if __name__ == '__main__':
     parameter = sys.argv[1:]
