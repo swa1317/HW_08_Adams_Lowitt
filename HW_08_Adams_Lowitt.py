@@ -23,4 +23,4 @@ if __name__ == '__main__':
         print("the parameter is empty")
     else:
         data = csv_to_array(parameter[0])
-        # get_crss_corr_coef()
+        #get_crss_corr_coef()
