@@ -12,9 +12,7 @@ def csv_to_array(csv_filename):
     data = csv_pandas.to_numpy()
     return data
 
-def get_crss_corr_coef():
-    Array_A = np.array([[], [], []])
-    Array_B = np.array([[], [], []])
+def get_crss_corr_coef(Array_A, Array_B):
     CC_AB = np.corrcoef(Array_A.ravel(), Array_B.ravel())
 
 if __name__ == '__main__':
