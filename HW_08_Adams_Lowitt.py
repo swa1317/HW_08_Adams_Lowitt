@@ -12,9 +12,14 @@ def csv_to_array(csv_filename):
     data = csv_pandas.to_numpy()
     return data
 
-def get_crss_corr_coef(Array_A, Array_B):
-    CrossCoef_AB = np.corrcoef(Array_A.ravel(), Array_B.ravel())
-    return CrossCoef_AB
+def get_crss_corr_coef(data):
+    num_cols = data.shape[1]
+    for first_index in range(1,num_cols):
+        for second_index in range(1,num_cols):
+            array1 = data[:,first_index]
+            array2 = data[:,second_index]
+            CrossCoef_AB = np.corrcoef(array1.ravel(), array2.ravel())
+            print("Cross correlation between indexes: " + str(first_index) + " and " + str(second_index) + " = " + str(CrossCoef_AB) )
 
 if __name__ == '__main__':
     parameter = sys.argv[1:]
@@ -22,7 +27,4 @@ if __name__ == '__main__':
         print("the parameter is empty")
     else:
         data = csv_to_array(parameter[0])
-        array1 = data[:,1] # Beans
-        array2 = data[:,2] # Bread
-        CrossCoef = get_crss_corr_coef(array1, array2)
-        print(CrossCoef)
+        get_crss_corr_coef(data)
