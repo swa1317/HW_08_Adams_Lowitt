@@ -12,13 +12,16 @@ def csv_to_array(csv_filename):
     data = csv_pandas.to_numpy()
     return data
 
+#
+# Loop through all attribute/class pairs and find the cross correlation. Print the results
+#
 def get_crss_corr_coef(data):
-    num_cols = data.shape[1]
-    for first_index in range(1,num_cols):
+    num_cols = data.shape[1] # number of columns in the data
+    for first_index in range(1,num_cols): # loop through all columns skipping the first column (ID)
         for second_index in range(1,num_cols):
-            array1 = data[:,first_index]
-            array2 = data[:,second_index]
-            CrossCoef_AB = np.corrcoef(array1.ravel(), array2.ravel())
+            array1 = data[:,first_index] # get the array of the first attribute/class column
+            array2 = data[:,second_index] # get the array of the second attribute/class column
+            CrossCoef_AB = np.corrcoef(array1.ravel(), array2.ravel()) # compute cross correlation coefficient using numpy.corrcoef()
             print("Cross correlation between indexes: " + str(first_index) + " and " + str(second_index) + " = " + str(CrossCoef_AB) )
 
 if __name__ == '__main__':
@@ -26,5 +29,5 @@ if __name__ == '__main__':
     if len(parameter) == 0:
         print("the parameter is empty")
     else:
-        data = csv_to_array(parameter[0])
-        get_crss_corr_coef(data)
+        data = csv_to_array(parameter[0]) # call the csv_to_array method to get a numpy 2d representation of the data
+        get_crss_corr_coef(data) # call the get_crss_corr_coef method to get the cross-correlation coefficient of each class pair
