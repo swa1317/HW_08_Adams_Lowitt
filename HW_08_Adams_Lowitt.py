@@ -26,7 +26,7 @@ def get_crss_corr_coef(data):
 
 if __name__ == '__main__':
     parameter = sys.argv[1:]
-    if len(parameter) == 0:
+    if len(parameter) == 0: # check for an empty parameter
         print("the parameter is empty")
     else:
         data = csv_to_array(parameter[0]) # call the csv_to_array method to get a numpy 2d representation of the data
