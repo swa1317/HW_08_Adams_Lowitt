@@ -17,12 +17,20 @@ def csv_to_array(csv_filename):
 #
 def get_crss_corr_coef(data):
     num_cols = data.shape[1] # number of columns in the data
+    max_coef = 0 # place holder for max coefficient
     for first_index in range(1,num_cols): # loop through all columns skipping the first column (ID)
+        attribute_average_correlation = 0 # place holder to keep track of the average correlation for each attribute
         for second_index in range(1,num_cols):
-            array1 = data[:,first_index] # get the array of the first attribute/class column
-            array2 = data[:,second_index] # get the array of the second attribute/class column
-            CrossCoef_AB = np.corrcoef(array1.ravel(), array2.ravel()) # compute cross correlation coefficient using numpy.corrcoef()
-            print("Cross correlation between indexes: " + str(first_index) + " and " + str(second_index) + " = " + str(CrossCoef_AB[0,1]) )
+            if first_index != second_index: # Don't compute coefficient of an attribute against itself
+                array1 = data[:,first_index] # get the array of the first attribute/class column
+                array2 = data[:,second_index] # get the array of the second attribute/class column
+                CrossCoef_AB = np.corrcoef(array1.ravel(), array2.ravel()) # compute cross correlation coefficient using numpy.corrcoef()
+                if abs(CrossCoef_AB[0,1]) > max_coef: max_coef = abs(CrossCoef_AB[0,1]) # set mac coefficient if new max is found
+                attribute_average_correlation += abs(CrossCoef_AB[0,1]) # add each coefficient for computing the average later in the code
+                print("Cross correlation between indexes: " + str(first_index) + " and " + str(second_index) + " = " + str(CrossCoef_AB[0,1]))
+        attribute_average_correlation /= 19 # compute the average coefficient.
+        print("Average attribute cross-correlation coefficient for index " + str(first_index) + " is: " + str(attribute_average_correlation))
+    print("Max Cross-correlation Coefficient: " + str(max_coef))
 
 if __name__ == '__main__':
     parameter = sys.argv[1:]
