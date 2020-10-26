@@ -1,7 +1,36 @@
 import numpy as np
 import pandas as pd
 import sys
-import matplotlib.pyplot as plt
+import math
+# import matplotlib.pyplot as plt
+
+
+class Cluster:
+    def __init__(self, shopper):
+        self.shoppers = []
+        self.shoppers.append(shopper)
+        self.num_shoppers = 1
+        self.center_point = shopper
+
+    def get_cluster_size(self):
+        return self.num_shoppers
+
+    def recalculate_center(self):
+        new_center = []
+        for grocery_item in range(1, 20):
+            item_total = 0
+            for cluster_member in range(self.num_shoppers):
+                item_total += self.shoppers[cluster_member][grocery_item]
+            item_avg = item_total/self.num_shoppers
+            new_center.append(item_avg)
+        self.center_point = new_center
+
+    def merge_clusters(self, other_cluster):
+        self.shoppers = self.shoppers + other_cluster.shoppers
+        self.num_shoppers = self.num_shoppers + other_cluster.num_shoppers
+        print("merging " + str(self.num_shoppers) + " with " + str(other_cluster.num_shoppers))
+        self.recalculate_center()
+
 
 def csv_to_array(csv_filename):
     """
@@ -32,6 +61,56 @@ def get_crss_corr_coef(data):
         print("Average attribute cross-correlation coefficient for index " + str(first_index) + " is: " + str(attribute_average_correlation))
     print("Max Cross-correlation Coefficient: " + str(max_coef))
 
+
+def compute_distance(c1, c2):
+    total = 0
+    for item in range(1, 19):
+        total += math.pow(c1.center_point[item] - c2.center_point[item], 2)
+    euclidean_distance = math.sqrt(total)
+    return euclidean_distance
+
+#
+# Agglomerate the data
+#
+def agglomerate(data):
+    shopping_clusters = []
+    for customer in data:
+        sample_customer = []
+        for datapoint in range(len(customer)):
+            sample_customer.append(datapoint)
+        new_cluster = Cluster(sample_customer)
+        shopping_clusters.append(new_cluster)
+
+    last_18_clusters = []
+    while len(shopping_clusters) > 1:
+        best_c1 = 0
+        best_c2 = 1
+        best_distance = compute_distance(shopping_clusters[0], shopping_clusters[1])
+        for cluster1_idx in range(len(shopping_clusters)):
+            for cluster2_idx in range(len(shopping_clusters)):
+                if cluster1_idx != cluster2_idx:
+                    euclidean_distance = compute_distance(shopping_clusters[cluster1_idx], shopping_clusters[cluster2_idx])
+                    if euclidean_distance <= best_distance:
+                        best_distance = euclidean_distance
+                        best_c1 = cluster1_idx
+                        best_c2 = cluster2_idx
+        if shopping_clusters[best_c1].num_shoppers >= shopping_clusters[best_c2].num_shoppers:
+            shopping_clusters[best_c1].merge_clusters(shopping_clusters[best_c2])
+            smaller_cluster_size = shopping_clusters[best_c2].num_shoppers
+            shopping_clusters.pop(best_c2)
+        else:
+            shopping_clusters[best_c2].merge_clusters(shopping_clusters[best_c1])
+            smaller_cluster_size = shopping_clusters[best_c1].num_shoppers
+            shopping_clusters.pop(best_c1)
+        # if 18 clusters left, start keeping track of sizes
+        if len(shopping_clusters) <= 18:
+            last_18_clusters.append(smaller_cluster_size)
+
+    print("agglomerated")
+    print("last 18 smallest clusters:")
+    print(last_18_clusters)
+
+
 if __name__ == '__main__':
     parameter = sys.argv[1:]
     if len(parameter) == 0: # check for an empty parameter
@@ -39,3 +118,4 @@ if __name__ == '__main__':
     else:
         data = csv_to_array(parameter[0]) # call the csv_to_array method to get a numpy 2d representation of the data
         get_crss_corr_coef(data) # call the get_crss_corr_coef method to get the cross-correlation coefficient of each class pair
+        agglomerate(data)
