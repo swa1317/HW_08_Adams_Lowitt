@@ -4,8 +4,9 @@ import sys
 import math
 # import matplotlib.pyplot as plt
 
-
+# data structure to hold the info for each cluster
 class Cluster:
+    # initializes a cluster with a list of shoppers, a size and a center point
     def __init__(self, shopper):
         self.shoppers = []
         self.shoppers.append(shopper)
@@ -15,6 +16,7 @@ class Cluster:
     def get_cluster_size(self):
         return self.num_shoppers
 
+    # calculates the new center of the cluster after a merge
     def recalculate_center(self):
         new_center = []
         for grocery_item in range(1, 20):
@@ -25,10 +27,11 @@ class Cluster:
             new_center.append(item_avg)
         self.center_point = new_center
 
+    # merges two clusters by combining their shopper lists and recalculating the new center
     def merge_clusters(self, other_cluster):
+        # print("merging " + str(self.num_shoppers) + " with " + str(other_cluster.num_shoppers))
         self.shoppers = self.shoppers + other_cluster.shoppers
         self.num_shoppers = self.num_shoppers + other_cluster.num_shoppers
-        print("merging " + str(self.num_shoppers) + " with " + str(other_cluster.num_shoppers))
         self.recalculate_center()
 
 
@@ -61,24 +64,25 @@ def get_crss_corr_coef(data):
         print("Average attribute cross-correlation coefficient for index " + str(first_index) + " is: " + str(attribute_average_correlation))
     print("Max Cross-correlation Coefficient: " + str(max_coef))
 
-
+# calculates the euclidean distance between two cluster centers
+# distance = ( sigma(x-y)^2 ) ^1/2  for each item in the cluster's center
 def compute_distance(c1, c2):
     total = 0
     for item in range(1, 19):
-        total += math.pow(c1.center_point[item] - c2.center_point[item], 2)
+        total = total + math.pow(c1.center_point[item] - c2.center_point[item], 2)
     euclidean_distance = math.sqrt(total)
     return euclidean_distance
 
-#
 # Agglomerate the data
-#
 def agglomerate(data):
+    # create a cluster for each shopper
     shopping_clusters = []
     for customer in data:
         sample_customer = []
         for datapoint in range(len(customer)):
-            sample_customer.append(datapoint)
+            sample_customer.append(customer[datapoint])
         new_cluster = Cluster(sample_customer)
+        # print(new_cluster.shoppers)
         shopping_clusters.append(new_cluster)
 
     last_18_clusters = []
@@ -86,14 +90,21 @@ def agglomerate(data):
         best_c1 = 0
         best_c2 = 1
         best_distance = compute_distance(shopping_clusters[0], shopping_clusters[1])
+        # loop through every pair of clsters to find which pair has the smallest euclidean distance
         for cluster1_idx in range(len(shopping_clusters)):
-            for cluster2_idx in range(len(shopping_clusters)):
+            for cluster2_idx in range(cluster1_idx, len(shopping_clusters)):
                 if cluster1_idx != cluster2_idx:
                     euclidean_distance = compute_distance(shopping_clusters[cluster1_idx], shopping_clusters[cluster2_idx])
+                    # if a new shortest distance is found, update new best
                     if euclidean_distance <= best_distance:
                         best_distance = euclidean_distance
                         best_c1 = cluster1_idx
                         best_c2 = cluster2_idx
+        print(str(best_c1) + " + " + str(best_c2))
+        print(str(shopping_clusters[best_c1].num_shoppers) + " + " + str(shopping_clusters[best_c2].num_shoppers))
+        # decide which cluster to be merged is smaller
+        # merges the clusters
+        # removes the smaller cluster from the list
         if shopping_clusters[best_c1].num_shoppers >= shopping_clusters[best_c2].num_shoppers:
             shopping_clusters[best_c1].merge_clusters(shopping_clusters[best_c2])
             smaller_cluster_size = shopping_clusters[best_c2].num_shoppers
@@ -102,12 +113,16 @@ def agglomerate(data):
             shopping_clusters[best_c2].merge_clusters(shopping_clusters[best_c1])
             smaller_cluster_size = shopping_clusters[best_c1].num_shoppers
             shopping_clusters.pop(best_c1)
+
+        # print(str(best_distance))
         # if 18 clusters left, start keeping track of sizes
         if len(shopping_clusters) <= 18:
             last_18_clusters.append(smaller_cluster_size)
-
-    print("agglomerated")
-    print("last 18 smallest clusters:")
+            for finalist_cluster in range(18):
+                print("size: " + str(shopping_clusters[finalist_cluster].num_shoppers))
+                print("center: " + str(shopping_clusters[finalist_cluster].center_point))
+    # print("agglomerated")
+    # print("last 18 smallest clusters:")
     print(last_18_clusters)
 
 
@@ -118,4 +133,4 @@ if __name__ == '__main__':
     else:
         data = csv_to_array(parameter[0]) # call the csv_to_array method to get a numpy 2d representation of the data
         get_crss_corr_coef(data) # call the get_crss_corr_coef method to get the cross-correlation coefficient of each class pair
-        agglomerate(data)
+        agglomerate(data) # call the agglomerate method to agglomerate the data
